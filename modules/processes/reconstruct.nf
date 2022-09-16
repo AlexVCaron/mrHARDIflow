@@ -21,6 +21,24 @@ params.frf_on_dti_shell = false
 params.max_dti_bvalue = 1300
 params.random_seed = 1234
 
+process prepare_magic_diamond {
+    label "res_single_cpu"
+
+    publishDir "${params.output_root}/all/${sid}/$caller_name/${task.index}_${task.process.replaceAll(":", "_")}", mode: params.publish_mode, enabled: params.publish_all
+    publishDir "${params.output_root}/${sid}/diamond", saveAs: { f -> f.contains("metadata") ? null : f }, mode: params.publish_mode
+
+    input:
+        tuple val(sid), path(dwis), path(bvals), path(bvecs), path(metadatas)
+    output:
+        tuple val(sid), path("${sid}_dwi__magicalized.nii.gz"), path("${sid}_dwi__magicalized.bval"), path("${sid}_dwi__magicalized.bvec"), emit: dwi
+        tuple val(sid), path("${sid}_dwi__magicalized.md"), emit: btensor_type, optional: true
+        tuple val(sid), path("${sid}_dwi__magicalized.py"), emit: metadata
+    script:
+        """
+        magic-monkey metadata --in ${dwis.join(',')} --generate_md
+        """
+}
+
 process diamond {
     label params.on_hcp ? "res_full_node_override" : "res_max_cpu"
 
@@ -28,7 +46,7 @@ process diamond {
     publishDir "${params.output_root}/${sid}/diamond", saveAs: { f -> f.contains("metadata") ? null : f }, mode: params.publish_mode
 
     input:
-        tuple val(sid), path(input_dwi), file(mask), path(data)
+        tuple val(sid), path(dwi), path(bval), path(bvec), file(btensor_type), file(mask), file(mosemask)
         val(caller_name)
         path(config)
     output:
@@ -36,6 +54,7 @@ process diamond {
         tuple val(sid), path("${sid}_diamond.xml"), emit: xml_summary
     script:
         def args = ""
+        def tensor_copy = ""
         if ( !mask.empty() )
             args += " --mask $mask"
         if ( params.model_selection_with_tensor )
@@ -52,9 +71,13 @@ process diamond {
             args += " --hindered"
         if ( !params.strict_parameters )
             args += " --lenient-params"
-
+        if ( !btensor_type.empty() )
+            tensor_copy = "cp $btensor_type ${dwi.simpleName}.md"
         """
-        magic-monkey diamond --in $input_dwi --out ${sid}_diamond --n $params.n_fascicles --f $params.fascicle_model --p $task.cpus --config $config $args
+        cp $bval ${dwi.simpleName}.bval
+        cp $bvec ${dwi.simpleName}.bvec
+        $tensor_copy
+        magic-monkey diamond --in $dwi --out ${sid}_diamond --n $params.n_fascicles --f $params.fascicle_model --p $task.cpus --config $config $args
         """
 }
 

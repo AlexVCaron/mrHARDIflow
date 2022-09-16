@@ -90,12 +90,19 @@ workflow dti_wkf {
 workflow diamond_wkf {
     take:
         dwi_channel
+        metadata_channel
         mask_channel
     main:
-        dwi_channel = dwi_channel.groupTuple()
-        dwi_image = dwi_channel.map{ [it[0], it[1]] }
-        other_files = dwi_channel.map{ [it[0], it.subList(2, it.size()).inject([]){ c, t -> c + t }] }
-        diamond(dwi_image.join(mask_channel).join(other_files), "reconstruct", params.reconstruct_diamond_config)
+        prepare_magic_diamond(dwi_channel.join(metadata_channel).groupTuple())
+        diamond(
+            prepare_magic_diamond.out.dwi
+                .join(prepare_magic_diamond.out.btensor_type, remainder: true)
+                .map{ it[-1] ? it : it[0..-2] + [""] }
+                .join(mask_channel)
+                .map{ it + [""] },
+            "reconstruct",
+            params.reconstruct_diamond_config
+        )
     emit:
         data = diamond.out.diamond
         xml_summary = diamond.out.xml_summary
