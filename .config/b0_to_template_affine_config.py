@@ -16,6 +16,8 @@ c.AntsRegistration.log_level = 30
 
 c.AntsRegistration.init_with_ants_ai = True
 
+c.AntsRegistration.init_with_ants_ai = True
+
 c.AntsRegistration.base_config_file = ""
 
 c.AntsRegistration.verbose = True
@@ -52,7 +54,7 @@ c.AntsConfiguration.passes = [{
                 1.,
                 64,
                 "Regular",
-                0.7,
+                1.,
                 True
             ],
             "klass": "mrHARDI.traits.ants.MetricMI"
@@ -84,7 +86,7 @@ c.AntsConfiguration.passes = [{
                 1.,
                 64,
                 "Regular",
-                0.8,
+                1.,
                 True
             ],
             "klass": "mrHARDI.traits.ants.MetricMI"
