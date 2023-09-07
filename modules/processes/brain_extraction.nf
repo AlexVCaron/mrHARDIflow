@@ -3,17 +3,12 @@
 nextflow.enable.dsl=2
 
 params.deep_bet_model = "Site-All-T-epoch_36_update_with_Site_6_plus_7-epoch_09.model"
-params.publish_all = false
-params.produce_qc_tree = true
-
-publish_all_enabled = (params.publish_all || params.produce_qc_tree)
 
 process deepbet_t1 {
     label "BET"
     label params.use_cuda ? "res_single_cpu" : params.on_hcp ? "res_full_node_override" : "res_max_cpu"
     label params.use_cuda ? "res_gpu" : ""
 
-    publishDir "${params.output_root}/all/${sid}/$caller_name/${task.process.replaceAll(":", "/")}", mode: "$params.publish_all_mode", enabled: publish_all_enabled, overwrite: true
     publishDir "${params.output_root}/${sid}", saveAs: { f -> f.contains("metadata") ? null : remove_alg_suffixes(f) }, mode: params.publish_mode, overwrite: true
 
     input:
@@ -32,7 +27,6 @@ process bet_mask {
     label "BET"
     label "res_single_cpu"
 
-    publishDir "${params.output_root}/all/${sid}/$caller_name/${task.process.replaceAll(":", "/")}", mode: "$params.publish_all_mode", enabled: publish_all_enabled, overwrite: true
     publishDir "${params.output_root}/${sid}", saveAs: { f -> f.contains("metadata") ? null : add_suffix(remove_alg_suffixes(f), suffix ? "$suffix" : "_bet_mask") }, mode: params.publish_mode, overwrite: true
 
     input:

@@ -11,18 +11,13 @@ params.b0_normalization_strategy = "linear"
 params.epi_algorithm = "topup"
 params.random_seed = 1234
 params.verbose_outputs = false
-params.publish_all = false
-params.produce_qc_tree = true
 
 include { remove_alg_suffixes } from '../functions.nf'
-
-publish_all_enabled = (params.publish_all || params.produce_qc_tree)
 
 process dwi_denoise {
     label "MPCA_DENOISE"
     label params.on_hcp ? "res_full_node_override" : params.conservative_resources ? "res_conservative_cpu" : "res_max_cpu"
 
-    publishDir "${params.output_root}/all/${sid}/$caller_name/${task.process.replaceAll(":", "/")}", mode: "$params.publish_all_mode", enabled: publish_all_enabled, overwrite: true
     publishDir "${params.output_root}/${sid}", saveAs: { f -> ("$publish" == "true") ? f.contains("metadata") ? null : remove_alg_suffixes(f) : null }, mode: params.publish_mode, overwrite: true
 
     input:
@@ -52,7 +47,6 @@ process nlmeans_denoise {
     label "NLMEANS_3D"
     label params.conservative_resources ? "res_conservative_cpu" : "res_max_cpu"
 
-    publishDir "${params.output_root}/all/${sid}/$caller_name/${task.process.replaceAll(":", "/")}", mode: "$params.publish_all_mode", enabled: publish_all_enabled, overwrite: true
     publishDir "${params.output_root}/${sid}", saveAs: { f -> ("$publish" == "true") ? f.contains("metadata") ? null : remove_alg_suffixes(f) : null }, mode: params.publish_mode, overwrite: true
 
     input:
@@ -83,7 +77,6 @@ process ants_gaussian_denoise {
     label "LONG"
     label params.conservative_resources ? "res_conservative_cpu" : "res_max_cpu"
 
-    publishDir "${params.output_root}/all/${sid}/$caller_name/${task.process.replaceAll(":", "/")}", mode: "$params.publish_all_mode", enabled: publish_all_enabled, overwrite: true
     publishDir "${params.output_root}/${sid}", saveAs: { f -> f.contains("metadata") ? null : remove_alg_suffixes(f) }, mode: params.publish_mode, overwrite: true
 
     input:
@@ -113,7 +106,6 @@ process n4_denoise {
     label "N4_CORRECTION"
     label params.conservative_resources ? "res_conservative_cpu" : "res_max_cpu"
 
-    publishDir "${params.output_root}/all/${sid}/$caller_name/${task.process.replaceAll(":", "/")}", mode: "$params.publish_all_mode", enabled: publish_all_enabled, overwrite: true
     publishDir "${params.output_root}/${sid}", saveAs: {
         f -> ("$publish" == "true") ? f.contains("metadata") || f.contains("bias_field") ? null 
                                                                                          : remove_alg_suffixes(f)
@@ -178,7 +170,6 @@ process apply_n4_bias_field {
     label "LIGHTSPEED"
     label "res_single_cpu"
 
-    publishDir "${params.output_root}/all/${sid}/$caller_name/${task.process.replaceAll(":", "/")}", mode: "$params.publish_all_mode", enabled: publish_all_enabled, overwrite: true
     publishDir "${params.output_root}/${sid}", saveAs: { f -> ("$publish" == "true") ? f.contains("metadata") ? null : remove_alg_suffixes(f) : null }, mode: params.publish_mode, overwrite: true
 
     input:
@@ -210,7 +201,6 @@ process normalize_inter_b0 {
     label "MEDIUM"
     label "res_single_cpu"
 
-    publishDir "${params.output_root}/all/${sid}/$caller_name/${task.process.replaceAll(":", "/")}", mode: "$params.publish_all_mode", enabled: publish_all_enabled, overwrite: true
     publishDir "${params.output_root}/${sid}", saveAs: { f -> f.contains("${rev_dwi.simpleName}") ? null : f.contains("metadata") ? null : remove_alg_suffixes(f) }, mode: params.publish_mode, overwrite: true
 
     input:
@@ -254,6 +244,7 @@ process normalize_inter_b0 {
 process prepare_epi_correction {
     label "LIGHTSPEED"
     label "res_single_cpu"
+    label "disable_all_publishing"
 
     input:
         tuple val(sid), path(b0s), path(dwi_bval), file(rev_bval), file(metadata)
@@ -284,8 +275,7 @@ process prepare_epi_correction {
 process topup {
     label "TOPUP"
     label "res_single_cpu"
-
-    publishDir "${params.output_root}/all/${sid}/$caller_name/${task.process.replaceAll(":", "/")}", mode: "$params.publish_all_mode", enabled: publish_all_enabled, overwrite: true
+    
     publishDir "${params.output_root}/${sid}", saveAs: { f -> f.contains("b0") ? null : f.contains("metadata") ? null : f.contains("topup.nii.gz") ? remove_alg_suffixes(f): null }, mode: params.publish_mode, overwrite: true
 
     input:
@@ -318,7 +308,6 @@ process bm_epi_correction {
         tuple val(sid), path("${sid}_b0__bm_fieldmap.nii.gz"), emit: fieldmap
         tuple val(sid), path(output_metadata), optional: true, emit: metadata
     script:
-
         """
         ./$bm_script $b0 $rev_b0 ${sid}_b0_ $task.cpus
         """
@@ -327,6 +316,7 @@ process bm_epi_correction {
 process prepare_eddy {
     label "LIGHTSPEED"
     label "res_single_cpu"
+    label "disable_all_publishing"
 
     input:
         tuple val(sid), val(prefix), file(acqp), val(rev_prefix), path(data), path(metadata)
@@ -381,8 +371,7 @@ process eddy {
     label params.use_cuda ? "EDDY_GPU" : "EDDY_OMP"
     label params.use_cuda ? "res_single_cpu" : params.on_hcp ? "res_full_node_override" : params.conservative_resources ? "res_conservative_cpu" : "res_max_cpu"
     label params.use_cuda ? "res_gpu" : ""
-
-    publishDir "${params.output_root}/all/${sid}/$caller_name/${task.process.replaceAll(":", "/")}", mode: "$params.publish_all_mode", enabled: publish_all_enabled, overwrite: true
+    
     publishDir "${params.output_root}/${sid}", saveAs: { f -> f.contains("metadata") ? null : remove_alg_suffixes(f) }, mode: params.publish_mode, overwrite: true
 
     input:
@@ -437,7 +426,6 @@ process gibbs_removal {
     label "MEDIUM"
     label params.conservative_resources ? "res_conservative_cpu" : "res_max_cpu"
 
-    publishDir "${params.output_root}/all/${sid}/$caller_name/${task.process.replaceAll(":", "/")}", mode: "$params.publish_all_mode", enabled: publish_all_enabled, overwrite: true
     publishDir "${params.output_root}/${sid}", saveAs: { f -> ("$publish" == "true") ? f.contains("metadata") ? null : remove_alg_suffixes(f) : null }, mode: params.publish_mode, overwrite: true
 
     input:

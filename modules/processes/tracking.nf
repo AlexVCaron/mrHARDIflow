@@ -15,17 +15,12 @@ params.pft_max_tract_length = 200
 params.pft_number_of_particles = 15
 params.pft_back_tracking_length = 2
 params.pft_forward_tracking_length = 1
-params.publish_all = false
-params.produce_qc_tree = true
 
 include { remove_alg_suffixes } from "../functions.nf"
-
-publish_all_enabled = (params.publish_all || params.produce_qc_tree)
 
 process PFT_maps {
     label "res_single_cpu"
 
-    publishDir "${params.output_root}/all/${sid}/$caller_name/${task.process.replaceAll(":", "/")}", mode: "$params.publish_all_mode", enabled: publish_all_enabled, overwrite: true
     publishDir "${params.output_root}/${sid}/tracking", saveAs: { f -> remove_alg_suffixes(f) }, mode: params.publish_mode, overwrite: true
 
     input:
@@ -46,7 +41,6 @@ process PFT_maps {
 process PFT_tracking {
     label "res_single_cpu"
 
-    publishDir "${params.output_root}/all/${sid}/$caller_name/${task.process.replaceAll(":", "/")}", mode: "$params.publish_all_mode", enabled: publish_all_enabled, overwrite: true
     publishDir "${params.output_root}/${sid}/tracking", saveAs: { f -> remove_alg_suffixes(f) }, mode: params.publish_mode, overwrite: true
 
     input:

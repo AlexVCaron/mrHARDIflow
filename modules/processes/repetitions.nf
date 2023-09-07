@@ -2,17 +2,11 @@
 
 nextflow.enable.dsl=2
 
-params.publish_all = false
-params.produce_qc_tree = true
-
 include { remove_alg_suffixes } from '../functions.nf'
-
-publish_all_enabled = (params.publish_all || params.produce_qc_tree)
 
 process ants_register_dwi_repetition {
     label params.conservative_resources ? "res_conservative_cpu" : "res_max_cpu"
 
-    publishDir "${params.output_root}/all/${sid}/$caller_name/${task.process.replaceAll(":", "/")}", mode: "$params.publish_all_mode", enabled: publish_all_enabled, overwrite: true
     publishDir "${params.output_root}/${sid}", saveAs: { f -> f.contains("metadata") ? null : remove_alg_suffixes(f) }, mode: params.publish_mode, overwrite: true
 
     input:
@@ -39,7 +33,6 @@ process ants_register_dwi_repetition {
 process ants_register_t1_repetition {
     label params.conservative_resources ? "res_conservative_cpu" : "res_max_cpu"
 
-    publishDir "${params.output_root}/all/${sid}/$caller_name/${task.process.replaceAll(":", "/")}", mode: "$params.publish_all_mode", enabled: publish_all_enabled, overwrite: true
     publishDir "${params.output_root}/${sid}", saveAs: { f -> f.contains("metadata") ? null : remove_alg_suffixes(f) }, mode: params.publish_mode, overwrite: true
 
     input:

@@ -21,16 +21,11 @@ params.frf_on_dti_shell = false
 params.max_dti_bvalue = 1300
 params.random_seed = 1234
 params.b0_threshold = false
-params.publish_all = false
-params.produce_qc_tree = true
-
-publish_all_enabled = (params.publish_all || params.produce_qc_tree)
 
 process diamond {
     label "DIAMOND"
     label params.on_hcp ? "res_full_node_override" : "res_max_cpu"
-
-    publishDir "${params.output_root}/all/${sid}/$caller_name/${task.process.replaceAll(":", "/")}", mode: "$params.publish_all_mode", enabled: publish_all_enabled, overwrite: true
+    
     publishDir "${params.output_root}/${sid}/diamond", saveAs: { f -> f.contains("metadata") ? null : f }, mode: params.publish_mode, overwrite: true
 
     input:
@@ -72,8 +67,7 @@ process diamond {
 process mrtrix_dti {
     label "MEDIUM"
     label "res_max_cpu"
-
-    publishDir "${params.output_root}/all/${sid}/$caller_name/${task.process.replaceAll(":", "/")}", mode: "$params.publish_all_mode", enabled: publish_all_enabled, overwrite: true
+    
     publishDir "${params.output_root}/${sid}/dti", saveAs: { f -> f.contains("metadata") ? null : f }, mode: params.publish_mode, overwrite: true
 
     input:
@@ -97,7 +91,6 @@ process response {
     label "FAST"
     label "res_single_cpu"
 
-    publishDir "${params.output_root}/all/${sid}/$caller_name/${task.process.replaceAll(":", "/")}", mode: "$params.publish_all_mode", enabled: publish_all_enabled, overwrite: true
     publishDir "${params.output_root}/${sid}/fodf", saveAs: { f -> f.contains("metadata") ? null : f }, mode: params.publish_mode, overwrite: true
 
     input:
@@ -124,8 +117,7 @@ process response {
 process csd {
     label "MEDIUM"
     label "res_max_cpu"
-
-    publishDir "${params.output_root}/all/${sid}/$caller_name/${task.process.replaceAll(":", "/")}", mode: "$params.publish_all_mode", enabled: publish_all_enabled, overwrite: true
+    
     publishDir "${params.output_root}/${sid}/fodf", saveAs: { f -> f.contains("metadata") ? null : f }, mode: params.publish_mode, overwrite: true
 
     input:
@@ -152,8 +144,7 @@ process csd {
 process scilpy_response {
     label "FAST"
     label "res_single_cpu"
-
-    publishDir "${params.output_root}/all/${sid}/$caller_name/${task.process.replaceAll(":", "/")}", mode: "$params.publish_all_mode", enabled: publish_all_enabled, overwrite: true
+    
     publishDir "${params.output_root}/${sid}/fodf", saveAs: { f -> f.contains("metadata") ? null : f }, mode: params.publish_mode, overwrite: true
 
     input:
@@ -199,8 +190,7 @@ process scilpy_response {
 process scilpy_msmt_response {
     label "FAST"
     label "res_single_cpu"
-
-    publishDir "${params.output_root}/all/${sid}/$caller_name/${task.process.replaceAll(":", "/")}", mode: "$params.publish_all_mode", enabled: publish_all_enabled, overwrite: true
+    
     publishDir "${params.output_root}/${sid}/fodf", saveAs: { f -> f.contains("metadata") ? null : f }, mode: params.publish_mode, overwrite: true
 
     input:
@@ -237,8 +227,7 @@ process scilpy_msmt_response {
 process scilpy_csd {
     label "MEDIUM"
     label "res_max_cpu"
-
-    publishDir "${params.output_root}/all/${sid}/$caller_name/${task.process.replaceAll(":", "/")}", mode: "$params.publish_all_mode", enabled: publish_all_enabled, overwrite: true
+    
     publishDir "${params.output_root}/${sid}/fodf", saveAs: { f -> f.contains("metadata") ? null : f }, mode: params.publish_mode, overwrite: true
 
     input:
@@ -270,7 +259,6 @@ process scilpy_msmt_csd {
     label "LONG"
     label "res_max_cpu"
 
-    publishDir "${params.output_root}/all/${sid}/$caller_name/${task.process.replaceAll(":", "/")}", mode: "$params.publish_all_mode", enabled: publish_all_enabled, overwrite: true
     publishDir "${params.output_root}/${sid}/fodf", saveAs: { f -> f.contains("metadata") ? null : f }, mode: params.publish_mode, overwrite: true
 
     input:

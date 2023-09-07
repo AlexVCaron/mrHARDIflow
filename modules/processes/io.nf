@@ -38,6 +38,8 @@ def metadata_from_params ( reverse ) {
 process prepare_metadata {
     label "LIGHTSPEED"
     label "res_single_cpu"
+    label "disable_all_publishing"
+
     input:
         tuple val(sid), path(image), file(metadata), val(reverse)
     output:
@@ -57,7 +59,7 @@ process prepare_metadata {
 process enforce_sid_convention {
     label "LIGHTSPEED"
     label "res_single_cpu"
-    cache 'lenient'
+    label "disable_all_publishing"
 
     input:
         tuple val(sid), path(images), val(suffix)
@@ -92,7 +94,7 @@ process enforce_sid_convention {
 process change_name {
     label "LIGHTSPEED"
     label "res_single_cpu"
-    cache 'lenient'
+    label "disable_all_publishing"
 
     input:
         tuple val(sid), file(files)
@@ -132,7 +134,7 @@ process change_name {
 process rename_sequentially {
     label "LIGHTSPEED"
     label "res_single_cpu"
-    cache 'lenient'
+    label "disable_all_publishing"
 
     input:
         tuple val(sid), path(files)

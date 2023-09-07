@@ -6,18 +6,13 @@ params.force_resampling_resolution = false
 params.resampling_min_resolution = false
 params.resampling_subdivision = 2
 params.force_resampling_sequential = false
-params.publish_all = false
-params.produce_qc_tree = true
 
 include { remove_alg_suffixes } from '../functions.nf'
-
-publish_all_enabled = (params.publish_all || params.produce_qc_tree)
 
 process scilpy_resample {
     label "FAST"
     label params.force_resampling_sequential ? "res_max_cpu" : "res_single_cpu"
-
-    publishDir "${params.output_root}/all/${sid}/$caller_name/${task.process.replaceAll(":", "/")}", mode: "$params.publish_all_mode", enabled: publish_all_enabled, overwrite: true
+    
     publishDir "${["${params.output_root}/${sid}", additional_publish_path].findAll({ it }).join("/")}", saveAs: { f -> f.contains("metadata") ? null : f.contains("${mask.simpleName}") ? ("$publish_mask" == "true") ? mask_prefix ? "${sid}_${mask_prefix}.nii.gz" : remove_alg_suffixes(f) : null : remove_alg_suffixes(f) }, mode: params.publish_mode, overwrite: true
 
     input:
@@ -57,7 +52,6 @@ process scilpy_resample_to_reference {
     label "FAST"
     label params.force_resampling_sequential ? "res_max_cpu" : "res_single_cpu"
 
-    publishDir "${params.output_root}/all/${sid}/$caller_name/${task.process.replaceAll(":", "/")}", mode: "$params.publish_all_mode", enabled: publish_all_enabled, overwrite: true
     publishDir "${["${params.output_root}/${sid}", additional_publish_path].findAll({ it }).join("/")}", saveAs: { f -> ("$publish" == "true") ? f.contains("metadata") ? null : f.contains("${mask.simpleName}") ? ("$publish_mask" == "true") ? mask_prefix ? "${sid}_${mask_prefix}.nii.gz" : remove_alg_suffixes(f) : null : remove_alg_suffixes(f) : null }, mode: params.publish_mode, overwrite: true
 
     input:
@@ -97,8 +91,6 @@ process scilpy_resample_to_reference {
 process resampling_reference {
     label "FAST"
     label "res_single_cpu"
-
-    publishDir "${params.output_root}/all/${sid}/$caller_name/${task.process.replaceAll(":", "/")}", mode: "$params.publish_all_mode", enabled: publish_all_enabled, overwrite: true
 
     input:
         tuple val(sid), path(images)
