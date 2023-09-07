@@ -92,6 +92,9 @@ OPTIONAL ARGUMENTS [possible values] (default values)
     --memory_buffer_gb                      Limit the amount of RAM available to dispatch processes ($memory_buffer_gb)
 
 - Processing steps activation/deactivation :
+    - Quality Control (QC) :
+        --produce_qc_tree                   When enabled, will produce directory tree to produce QC reports. Web-based reports
+                                            are then produced running dmriqc_flow on those directories [true|false] ($produce_qc_tree)
     - DWI preprocessing :
         --gaussian_noise_correction         Do initial background noise removal on diffusion [true|false] ($gaussian_noise_correction)
         --gibbs_ringing_correction          Do gibbs ringing artifact correction [true|false] ($gibbs_ringing_correction)

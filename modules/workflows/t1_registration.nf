@@ -92,6 +92,7 @@ include {
 params.use_quick = false
 params.resampling_subdivision = 2
 params.resampling_min_resolution = false
+params.produce_qc_tree = true
 
 params.tissue_segmentation_root = "${get_data_path()}/maccaca_mulatta/tissue_segmentation"
 

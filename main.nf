@@ -78,7 +78,7 @@ def display_run_info () {
     log.info "    - b0 threshold : ${params.b0_threshold ? params.b0_threshold : 0}"
     log.info " - Output root     : $params.output_root"
     log.info " - Publish mode    : $params.publish_mode"
-    log.info " - Publish all outputs ${params.publish_all ? "(enabled)" : "(disabled)"}"
+    log.info " - Publish all outputs ${(params.publish_all || params.produce_qc_tree) ? "(enabled)" : "(disabled)"}"
     log.info " - Publish all mode : $params.publish_all_mode"
     log.info " - Verbose ${params.verbose_outputs ? "(enabled)" : "(disabled)"}"
     log.info " - Random seed     : $params.random_seed"
@@ -96,6 +96,8 @@ def display_run_info () {
     }
     log.info " - Max CPU per process : ${params.max_cpu_per_process ? params.max_cpu_per_process : params.processes}"
     log.info ""
+    log.info "Quality Control (QC) :"
+    log.info " - Produce QC directory tree ${params.produce_qc_tree ? "(enabled)" : "(disabled)"}"
     log.info "DWI preprocessing :"
     log.info " - Background denoising ${params.gaussian_noise_correction ? "(enabled)" : "(disabled)"}"
     log.info " - Gibbs ringing ${params.gibbs_ringing_correction ? "(enabled)" : "(disabled)"}"
@@ -229,6 +231,7 @@ def display_usage () {
             "memory_buffer_gb": "$params.memory_buffer_gb",
             "force_resampling_sequential" : "$params.force_resampling_sequential",
             "force_resampling_resolution" : "${params.force_resampling_resolution ? params.force_resampling_resolution : false}",
+            "produce_qc_tree": "$params.produce_qc_tree",
             "resampling_subdivision" : "$params.resampling_subdivision",
             "resampling_min_resolution" : "$params.resampling_min_resolution",
             "b0_threshold" : "$params.b0_threshold",
