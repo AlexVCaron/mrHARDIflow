@@ -30,7 +30,7 @@ workflow {
         "${params.data_input}/**/transforms/b0_to_template/scripts_transforms/*image*b0_to_template*.nii.gz"
     ){ get_id(it.parent, root) }
 
-    register_atlases_wkf(t1_channel, mask_channel, gm_mask_channel, transforms_channel)
+    register_atlases_wkf(t1_channel, brainmask_channel, gm_mask_channel, transforms_channel)
 }
 
 workflow.onComplete {

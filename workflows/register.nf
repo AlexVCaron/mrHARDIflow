@@ -2,6 +2,20 @@
 
 nextflow.enable.dsl=2
 
+include { 
+    prepend_sid as prepend_sid_d99;
+    prepend_sid as prepend_sid_charm;
+    prepend_sid as prepend_sid_sarm;
+    prepend_sid as prepend_sid_inia19
+} from '../modules/processes/utils.nf'
+include {
+    segment_atlas_wkf as segment_d99;
+    segment_atlas_wkf as segment_charm;
+    segment_atlas_wkf as segment_sarm;
+    segment_atlas_wkf as segment_inia19
+} from '../modules/workflows/segment.nf'
+include { get_data_path } from '../modules/functions.nf'  
+
 params.register_d99 = true
 params.register_charm = true
 params.register_sarm = true
@@ -44,7 +58,7 @@ workflow register_atlases_wkf {
             }
 
             segment_d99(
-                d99_atlas,
+                d99_channel,
                 reference_channel,
                 transform_channel,
                 gm_mask_channel,
@@ -114,7 +128,7 @@ workflow register_atlases_wkf {
             }
 
             segment_inia19(
-                inia19_atlas,
+                inia19_channel,
                 reference_channel,
                 transform_channel,
                 mask_channel,

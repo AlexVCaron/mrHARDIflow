@@ -15,10 +15,6 @@ include {
     prepend_sid as prepend_sid_segmentation;
     prepend_sid as prepend_sid_template_fa;
     prepend_sid as prepend_sid_wm_atlas;
-    prepend_sid as prepend_sid_d99;
-    prepend_sid as prepend_sid_charm;
-    prepend_sid as prepend_sid_sarm;
-    prepend_sid as prepend_sid_inia19
     pvf_to_mask
 } from '../processes/utils.nf'
 include {
